@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #fff;
+            overflow: hidden;
         }
 
         h1 {
@@ -76,17 +77,9 @@
 
         .btn-secondary:hover { box-shadow: 0 6px 20px rgba(255,255,255,0.1); }
 
-        .divider {
-            color: #555;
-            font-size: 0.9rem;
-            margin: 5px 0;
-        }
+        .divider { color: #555; font-size: 0.9rem; margin: 5px 0; }
 
-        .waiting {
-            font-size: 1.2rem;
-            color: #ccc;
-            margin: 20px 0;
-        }
+        .waiting { font-size: 1.2rem; color: #ccc; margin: 20px 0; }
 
         .code-display {
             font-size: 3rem;
@@ -98,362 +91,289 @@
             margin: 10px 0;
         }
 
-        .copy-btn {
-            padding: 8px 20px;
-            font-size: 0.85rem;
-            width: auto;
-            margin-bottom: 15px;
-        }
+        .copy-btn { padding: 8px 20px; font-size: 0.85rem; width: auto; margin-bottom: 15px; }
 
-        .scoreboard {
-            display: flex;
-            gap: 30px;
-            margin-bottom: 15px;
-        }
-
+        .scoreboard { display: flex; gap: 30px; margin-bottom: 15px; }
         .scoreboard div { text-align: center; }
-        .scoreboard span {
-            display: block;
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-
+        .scoreboard span { display: block; font-size: 1.8rem; font-weight: bold; margin-top: 4px; }
         #score-x { color: #f857a6; }
         #score-o { color: #42e695; }
         #score-draw { color: #aaa; }
 
-        .players-bar {
-            display: flex;
-            justify-content: space-between;
-            width: 380px;
-            margin-bottom: 10px;
-            font-size: 0.95rem;
-        }
+        .players-bar { display: flex; justify-content: space-between; width: 380px; margin-bottom: 10px; font-size: 0.95rem; }
+        .players-bar .player { padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+        .players-bar .player.active-turn { border-color: #f857a6; box-shadow: 0 0 10px rgba(248,87,166,0.3); }
 
-        .players-bar .player {
-            padding: 8px 16px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .players-bar .player.active-turn {
-            border-color: #f857a6;
-            box-shadow: 0 0 10px rgba(248,87,166,0.3);
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(3, 110px);
-            grid-template-rows: repeat(3, 110px);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-
+        .board { display: grid; grid-template-columns: repeat(3, 110px); grid-template-rows: repeat(3, 110px); gap: 8px; margin-bottom: 20px; }
         .cell {
-            width: 110px;
-            height: 110px;
+            width: 110px; height: 110px;
             background: rgba(255,255,255,0.05);
             border: 2px solid rgba(255,255,255,0.1);
             border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.8rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            user-select: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.8rem; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; user-select: none;
         }
-
         .cell:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
         .cell.x { color: #f857a6; text-shadow: 0 0 15px rgba(248,87,166,0.5); }
         .cell.o { color: #42e695; text-shadow: 0 0 15px rgba(66,230,149,0.5); }
-        .cell.win {
-            background: rgba(255,255,255,0.15);
-            animation: pulse 0.6s ease infinite alternate;
-        }
+        .cell.win { background: rgba(255,255,255,0.15); animation: pulse 0.6s ease infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-        @keyframes pulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.1); }
-        }
+        .status { font-size: 1.2rem; margin-bottom: 15px; min-height: 30px; color: #ccc; }
+        .error-msg { color: #ff5858; font-size: 0.95rem; min-height: 25px; }
 
-        .status {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            min-height: 30px;
-            color: #ccc;
-        }
+        .toggle-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 5px 0; font-size: 0.9rem; color: #ccc; }
+        .toggle { position: relative; width: 44px; height: 24px; background: rgba(255,255,255,0.15); border-radius: 12px; cursor: pointer; transition: background 0.3s; }
+        .toggle.on { background: #42e695; }
+        .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform 0.3s; }
+        .toggle.on::after { transform: translateX(20px); }
 
-        .error-msg {
-            color: #ff5858;
-            font-size: 0.95rem;
-            min-height: 25px;
-        }
-
-        .toggle-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin: 5px 0;
-            font-size: 0.9rem;
-            color: #ccc;
-        }
-
-        .toggle {
-            position: relative;
-            width: 44px;
-            height: 24px;
-            background: rgba(255,255,255,0.15);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle.on {
-            background: #42e695;
-        }
-
-        .toggle::after {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 18px;
-            height: 18px;
-            background: #fff;
-            border-radius: 50%;
-            transition: transform 0.3s;
-        }
-
-        .toggle.on::after {
-            transform: translateX(20px);
-        }
-
-        .rooms-section {
-            margin-top: 25px;
-            width: 340px;
-            text-align: left;
-        }
-
-        .rooms-title {
-            font-size: 1rem;
-            color: #888;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-align: center;
-        }
-
-        .rooms-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-height: 220px;
-            overflow-y: auto;
-        }
-
+        .rooms-section { margin-top: 25px; width: 340px; text-align: left; }
+        .rooms-title { font-size: 1rem; color: #888; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; text-align: center; }
+        .rooms-list { display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; }
         .rooms-list::-webkit-scrollbar { width: 4px; }
         .rooms-list::-webkit-scrollbar-track { background: transparent; }
         .rooms-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        .room-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; transition: border 0.2s, background 0.2s; }
+        .room-item:hover { border-color: #42e695; background: rgba(66,230,149,0.05); }
+        .room-info { display: flex; flex-direction: column; gap: 2px; }
+        .room-host { font-weight: bold; font-size: 0.95rem; }
+        .room-code-label { font-size: 0.8rem; color: #666; letter-spacing: 1px; }
+        .room-item .btn { width: auto; padding: 6px 16px; font-size: 0.8rem; margin: 0; }
+        .no-rooms { text-align: center; color: #555; font-size: 0.9rem; padding: 20px 0; }
+        .waiting-code-label { font-size: 0.85rem; color: #888; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
 
-        .room-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 16px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            transition: border 0.2s, background 0.2s;
-        }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 10; }
+        .overlay.active { display: flex; }
+        .modal { background: #1e1e2f; padding: 40px 50px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); }
+        .modal h2 { font-size: 2rem; margin-bottom: 8px; }
+        .modal p { font-size: 1.1rem; margin-bottom: 25px; color: #ccc; }
+        .modal .btn { width: 240px; margin: 5px auto; display: block; }
+        .back-link { margin-top: 12px; font-size: 0.9rem; color: #888; cursor: pointer; transition: color 0.2s; }
+        .back-link:hover { color: #fff; }
+        .dots::after { content: ''; animation: dots 1.5s steps(4, end) infinite; }
+        @keyframes dots { 0%{content:'';} 25%{content:'.';} 50%{content:'..';} 75%{content:'...';} 100%{content:'';} }
 
-        .room-item:hover {
-            border-color: #42e695;
-            background: rgba(66,230,149,0.05);
-        }
-
-        .room-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .room-host {
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
-
-        .room-code-label {
-            font-size: 0.8rem;
-            color: #666;
-            letter-spacing: 1px;
-        }
-
-        .room-item .btn {
-            width: auto;
-            padding: 6px 16px;
-            font-size: 0.8rem;
-            margin: 0;
-        }
-
-        .no-rooms {
-            text-align: center;
-            color: #555;
-            font-size: 0.9rem;
-            padding: 20px 0;
-        }
-
-        .waiting-code-label {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .dice-screen { gap: 20px; }
+        /* ========== DICE 3D ========== */
+        .dice-screen { gap: 10px; }
 
         .dice-title {
-            font-size: 1.3rem;
-            color: #ccc;
+            font-size: 1.4rem;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 5px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 10px;
         }
 
-        .dice-container {
-            display: flex;
-            gap: 60px;
-            align-items: flex-end;
-        }
-
-        .dice-player {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .dice-player-name {
-            font-size: 1rem;
-            font-weight: bold;
-        }
-
-        .dice-player.x-dice .dice-player-name { color: #f857a6; }
-        .dice-player.o-dice .dice-player-name { color: #42e695; }
-
-        .dice {
-            width: 100px;
-            height: 100px;
-            background: #fff;
-            border-radius: 16px;
+        .dice-arena {
+            position: relative;
+            width: 520px;
+            height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            color: #1e1e2f;
+            gap: 0;
+        }
+
+        .dice-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .dice-slot-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .dice-slot.x-slot .dice-slot-name { color: #f857a6; }
+        .dice-slot.o-slot .dice-slot-name { color: #42e695; }
+
+        .dice-slot-score {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.4);
+            min-height: 22px;
+            font-weight: 600;
+        }
+
+        .scene {
+            width: 120px;
+            height: 120px;
+            perspective: 600px;
+        }
+
+        .dice-3d {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(-25deg) rotateY(25deg);
             transition: transform 0.1s;
         }
 
-        .dice.rolling {
-            animation: diceShake 0.1s infinite alternate;
+        .dice-3d.face-1 { transform: rotateX(0deg) rotateY(0deg); }
+        .dice-3d.face-2 { transform: rotateX(0deg) rotateY(-90deg); }
+        .dice-3d.face-3 { transform: rotateX(-90deg) rotateY(0deg); }
+        .dice-3d.face-4 { transform: rotateX(90deg) rotateY(0deg); }
+        .dice-3d.face-5 { transform: rotateX(0deg) rotateY(90deg); }
+        .dice-3d.face-6 { transform: rotateX(180deg) rotateY(0deg); }
+
+        .dice-3d.rolling {
+            animation: diceRoll3D 0.15s linear infinite;
         }
 
-        @keyframes diceShake {
-            from { transform: rotate(-8deg) scale(1.05); }
-            to { transform: rotate(8deg) scale(0.95); }
+        @keyframes diceRoll3D {
+            0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            25%  { transform: rotateX(90deg) rotateY(180deg) rotateZ(45deg); }
+            50%  { transform: rotateX(180deg) rotateY(360deg) rotateZ(0deg); }
+            75%  { transform: rotateX(270deg) rotateY(540deg) rotateZ(-45deg); }
+            100% { transform: rotateX(360deg) rotateY(720deg) rotateZ(0deg); }
         }
 
-        .dice.hidden {
-            background: rgba(255,255,255,0.1);
-            color: transparent;
+        .dice-3d.landed {
+            animation: diceLand 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
 
-        .dice-value {
-            font-size: 1.4rem;
-            min-height: 30px;
+        @keyframes diceLand {
+            0%   { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+            30%  { transform: rotateX(400deg) rotateY(760deg) rotateZ(20deg) scale(1.1); }
+            60%  { transform: rotateX(700deg) rotateY(1400deg) rotateZ(-10deg) scale(0.95); }
+            80%  { transform: rotateX(0deg) rotateY(0deg) rotateZ(5deg) scale(1.02); }
+            100% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
         }
 
-        .dice-player.x-dice .dice-value { color: #f857a6; }
-        .dice-player.o-dice .dice-value { color: #42e695; }
+        .face {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: grid;
+            padding: 16px;
+            backface-visibility: hidden;
+        }
 
-        .dice-status {
-            font-size: 1.1rem;
-            color: #ccc;
-            min-height: 30px;
+        .face-1 { background: linear-gradient(145deg, #ffffff, #e8e8e8); transform: rotateY(0deg) translateZ(60px); }
+        .face-2 { background: linear-gradient(145deg, #f5f5f5, #ddd); transform: rotateY(180deg) translateZ(60px); }
+        .face-3 { background: linear-gradient(145deg, #fafafa, #e0e0e0); transform: rotateX(90deg) translateZ(60px); }
+        .face-4 { background: linear-gradient(145deg, #f0f0f0, #d5d5d5); transform: rotateX(-90deg) translateZ(60px); }
+        .face-5 { background: linear-gradient(145deg, #f8f8f8, #ddd); transform: rotateY(90deg) translateZ(60px); }
+        .face-6 { background: linear-gradient(145deg, #ececec, #d0d0d0); transform: rotateY(-90deg) translateZ(60px); }
+
+        .dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 35%, #444, #111);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .face-1 { grid-template: 1fr / 1fr; place-items: center; }
+        .face-2 { grid-template: 1fr 1fr / 1fr; }
+        .face-2 .dot:nth-child(1) { justify-self: end; align-self: start; }
+        .face-2 .dot:nth-child(2) { justify-self: start; align-self: end; }
+        .face-3 { grid-template: 1fr 1fr 1fr / 1fr; }
+        .face-3 .dot:nth-child(1) { justify-self: end; align-self: start; }
+        .face-3 .dot:nth-child(2) { justify-self: center; align-self: center; }
+        .face-3 .dot:nth-child(3) { justify-self: start; align-self: end; }
+        .face-4 { grid-template: 1fr 1fr / 1fr 1fr; place-items: center; }
+        .face-5 { grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr; place-items: center; }
+        .face-5 .dot:nth-child(1) { grid-area: 1/1; }
+        .face-5 .dot:nth-child(2) { grid-area: 1/3; }
+        .face-5 .dot:nth-child(3) { grid-area: 2/2; }
+        .face-5 .dot:nth-child(4) { grid-area: 3/1; }
+        .face-5 .dot:nth-child(5) { grid-area: 3/3; }
+        .face-6 { grid-template: 1fr 1fr 1fr / 1fr 1fr; place-items: center; }
+
+        .dice-shadow {
+            width: 100px;
+            height: 14px;
+            background: radial-gradient(ellipse, rgba(0,0,0,0.4), transparent);
+            border-radius: 50%;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dice-shadow.visible { opacity: 1; }
+
+        .dice-vs-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 20px;
         }
 
         .dice-vs {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 40px;
+            font-size: 2rem;
+            font-weight: 900;
+            color: rgba(255,255,255,0.12);
+            letter-spacing: 3px;
+        }
+
+        .dice-vs-line {
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .dice-status-bar {
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .dice-status {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
         }
 
         .dice-result-text {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-top: 5px;
-            min-height: 30px;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.4s, transform 0.4s;
         }
 
-        .dice-result-text.winner-x { color: #f857a6; }
-        .dice-result-text.winner-o { color: #42e695; }
+        .dice-result-text.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dice-result-text.winner-x { color: #f857a6; text-shadow: 0 0 30px rgba(248,87,166,0.5); }
+        .dice-result-text.winner-o { color: #42e695; text-shadow: 0 0 30px rgba(66,230,149,0.5); }
         .dice-result-text.tie-text { color: #aaa; }
 
-        .overlay {
-            display: none;
+        #confetti-canvas {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
         }
 
-        .overlay.active { display: flex; }
-
-        .modal {
-            background: #1e1e2f;
-            padding: 40px 50px;
-            border-radius: 20px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .modal h2 { font-size: 2rem; margin-bottom: 8px; }
-        .modal p { font-size: 1.1rem; margin-bottom: 25px; color: #ccc; }
-
-        .modal .btn { width: 240px; margin: 5px auto; display: block; }
-
-        .back-link {
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: #888;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .back-link:hover { color: #fff; }
-
-        .dots::after {
-            content: '';
-            animation: dots 1.5s steps(4, end) infinite;
-        }
-
-        @keyframes dots {
-            0%   { content: ''; }
-            25%  { content: '.'; }
-            50%  { content: '..'; }
-            75%  { content: '...'; }
-            100% { content: ''; }
-        }
-
-        @media (max-width: 440px) {
+        @media (max-width: 560px) {
+            .dice-arena { width: 340px; height: 240px; gap: 0; }
+            .scene { width: 90px; height: 90px; }
+            .dice-3d, .face { width: 90px; height: 90px; }
+            .face-1 { transform: rotateY(0deg) translateZ(45px); }
+            .face-2 { transform: rotateY(180deg) translateZ(45px); }
+            .face-3 { transform: rotateX(90deg) translateZ(45px); }
+            .face-4 { transform: rotateX(-90deg) translateZ(45px); }
+            .face-5 { transform: rotateY(90deg) translateZ(45px); }
+            .face-6 { transform: rotateY(-90deg) translateZ(45px); }
+            .dot { width: 16px; height: 16px; }
+            .face { padding: 12px; border-radius: 14px; }
             .board { grid-template-columns: repeat(3, 90px); grid-template-rows: repeat(3, 90px); }
             .cell { width: 90px; height: 90px; font-size: 2.2rem; }
             .players-bar { width: 290px; }
@@ -462,9 +382,10 @@
     </style>
 </head>
 <body>
+    <canvas id="confetti-canvas"></canvas>
     <h1>3 en Raya</h1>
 
-    <!-- PANTALLA LOBBY -->
+    <!-- LOBBY -->
     <div class="screen active" id="screen-lobby">
         <div class="lobby">
             <input type="text" id="player-name" placeholder="Tu nombre" maxlength="15">
@@ -487,7 +408,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA ESPERANDO -->
+    <!-- ESPERANDO -->
     <div class="screen" id="screen-waiting">
         <div class="waiting-code-label">Codigo de sala</div>
         <div class="code-display" id="room-code-display"></div>
@@ -497,28 +418,57 @@
         <div class="back-link" id="btn-leave-waiting">Volver al lobby</div>
     </div>
 
-    <!-- PANTALLA DADOS -->
+    <!-- DADOS 3D -->
     <div class="screen" id="screen-dice">
         <div class="dice-title">Quien empieza?</div>
-        <div class="dice-container">
-            <div class="dice-player x-dice">
-                <div class="dice-player-name" id="dice-x-name">X</div>
-                <div class="dice hidden" id="dice-x">?</div>
-                <div class="dice-value" id="dice-x-value"></div>
+        <div class="dice-arena">
+            <div class="dice-slot x-slot">
+                <div class="dice-slot-name" id="dice-x-name">X</div>
+                <div class="scene">
+                    <div class="dice-3d" id="dice3d-x">
+                        <div class="face face-1"><div class="dot"></div></div>
+                        <div class="face face-2"><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+                <div class="dice-shadow" id="shadow-x"></div>
+                <div class="dice-slot-score" id="dice-x-value"></div>
             </div>
-            <div class="dice-vs">VS</div>
-            <div class="dice-player o-dice">
-                <div class="dice-player-name" id="dice-o-name">O</div>
-                <div class="dice hidden" id="dice-o">?</div>
-                <div class="dice-value" id="dice-o-value"></div>
+
+            <div class="dice-vs-wrapper">
+                <div class="dice-vs-line"></div>
+                <div class="dice-vs">VS</div>
+                <div class="dice-vs-line"></div>
+            </div>
+
+            <div class="dice-slot o-slot">
+                <div class="dice-slot-name" id="dice-o-name">O</div>
+                <div class="scene">
+                    <div class="dice-3d" id="dice3d-o">
+                        <div class="face face-1"><div class="dot"></div></div>
+                        <div class="face face-2"><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-3"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-4"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-5"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div class="face face-6"><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                    </div>
+                </div>
+                <div class="dice-shadow" id="shadow-o"></div>
+                <div class="dice-slot-score" id="dice-o-value"></div>
             </div>
         </div>
-        <div class="dice-status" id="dice-status">Preparado...</div>
-        <div class="dice-result-text" id="dice-result-text"></div>
-        <button class="btn" id="btn-roll" style="width:200px;">Tirar dado</button>
+
+        <div class="dice-status-bar">
+            <div class="dice-status" id="dice-status">Pulsa para tirar</div>
+            <div class="dice-result-text" id="dice-result-text"></div>
+        </div>
+        <button class="btn" id="btn-roll" style="width:220px;">Tirar dados</button>
     </div>
 
-    <!-- PANTALLA JUEGO -->
+    <!-- JUEGO -->
     <div class="screen" id="screen-game">
         <div class="players-bar">
             <div class="player" id="player-x-display">X</div>
@@ -531,15 +481,9 @@
         </div>
         <div class="status" id="status"></div>
         <div class="board" id="board">
-            <div class="cell" data-index="0"></div>
-            <div class="cell" data-index="1"></div>
-            <div class="cell" data-index="2"></div>
-            <div class="cell" data-index="3"></div>
-            <div class="cell" data-index="4"></div>
-            <div class="cell" data-index="5"></div>
-            <div class="cell" data-index="6"></div>
-            <div class="cell" data-index="7"></div>
-            <div class="cell" data-index="8"></div>
+            <div class="cell" data-index="0"></div><div class="cell" data-index="1"></div><div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div><div class="cell" data-index="4"></div><div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div><div class="cell" data-index="7"></div><div class="cell" data-index="8"></div>
         </div>
         <button class="btn btn-secondary" id="btn-leave-game" style="width:200px;font-size:0.85rem;padding:10px 20px;">Salir de la sala</button>
     </div>
@@ -565,8 +509,100 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+        // ========== CONFETTI ==========
+        const confettiCanvas = document.getElementById('confetti-canvas');
+        const confettiCtx = confettiCanvas.getContext('2d');
+        let confettiParticles = [];
+        let confettiRunning = false;
 
+        function resizeConfetti() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        resizeConfetti();
+        window.addEventListener('resize', resizeConfetti);
+
+        function launchConfetti(color) {
+            confettiParticles = [];
+            const colors = color === 'x'
+                ? ['#f857a6','#ff5858','#ff8a9e','#c94277','#ffaec9']
+                : ['#42e695','#3bb2b8','#7fffd4','#2ecc71','#a8f0d4'];
+            for (let i = 0; i < 150; i++) {
+                confettiParticles.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: -20 - Math.random() * 200,
+                    w: 6 + Math.random() * 6,
+                    h: 4 + Math.random() * 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: 2 + Math.random() * 4,
+                    rot: Math.random() * 360,
+                    rotSpeed: (Math.random() - 0.5) * 12,
+                    life: 1
+                });
+            }
+            if (!confettiRunning) {
+                confettiRunning = true;
+                animateConfetti();
+            }
+        }
+
+        function animateConfetti() {
+            confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiParticles.forEach(p => {
+                p.x += p.vx;
+                p.vy += 0.08;
+                p.y += p.vy;
+                p.rot += p.rotSpeed;
+                if (p.y > confettiCanvas.height + 20) p.life -= 0.02;
+                confettiCtx.save();
+                confettiCtx.translate(p.x, p.y);
+                confettiCtx.rotate(p.rot * Math.PI / 180);
+                confettiCtx.globalAlpha = Math.max(0, p.life);
+                confettiCtx.fillStyle = p.color;
+                confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                confettiCtx.restore();
+            });
+            confettiParticles = confettiParticles.filter(p => p.life > 0);
+            if (confettiParticles.length > 0) {
+                requestAnimationFrame(animateConfetti);
+            } else {
+                confettiRunning = false;
+                confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            }
+        }
+
+        // ========== DICE LOGIC ==========
+        const diceX = document.getElementById('dice3d-x');
+        const diceO = document.getElementById('dice3d-o');
+        const shadowX = document.getElementById('shadow-x');
+        const shadowO = document.getElementById('shadow-o');
+
+        function setDiceFace(diceEl, value) {
+            diceEl.className = 'dice-3d face-' + value;
+        }
+
+        function animateDiceRoll(diceEl, shadowEl, callback) {
+            diceEl.className = 'dice-3d rolling';
+            shadowEl.classList.add('visible');
+            let flicker = setInterval(() => {
+                const f = Math.floor(Math.random() * 6) + 1;
+                setDiceFace(diceEl, f);
+            }, 80);
+            setTimeout(() => {
+                clearInterval(flicker);
+                diceEl.classList.remove('rolling');
+                diceEl.classList.add('landed');
+                setTimeout(() => {
+                    diceEl.classList.remove('landed');
+                    shadowEl.classList.remove('visible');
+                    if (callback) callback();
+                }, 650);
+            }, 2000);
+        }
+
+        // ========== SOCKET ==========
+        const socket = io();
         const screens = {
             lobby: document.getElementById('screen-lobby'),
             waiting: document.getElementById('screen-waiting'),
@@ -588,6 +624,7 @@
         let currentTurn = '';
         let myName = '';
         let isPublicRoom = true;
+        let diceRolled = false;
 
         togglePublic.addEventListener('click', () => {
             isPublicRoom = !isPublicRoom;
@@ -608,7 +645,6 @@
                     <button class="btn btn-secondary btn-quick-join" data-code="${r.code}">Unirse</button>
                 </div>
             `).join('');
-
             roomsList.querySelectorAll('.btn-quick-join').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const name = getPlayerName();
@@ -672,15 +708,11 @@
         });
 
         document.getElementById('btn-leave-waiting').addEventListener('click', () => {
-            socket.disconnect();
-            socket.connect();
-            showScreen('lobby');
+            socket.disconnect(); socket.connect(); showScreen('lobby');
         });
 
         document.getElementById('btn-leave-game').addEventListener('click', () => {
-            socket.disconnect();
-            socket.connect();
-            showScreen('lobby');
+            socket.disconnect(); socket.connect(); showScreen('lobby');
         });
 
         function startGameScreen(room) {
@@ -697,10 +729,10 @@
         }
 
         function updatePlayers(players) {
-            const xPlayer = players.find(p => p.mark === 'X');
-            const oPlayer = players.find(p => p.mark === 'O');
-            document.getElementById('player-x-display').textContent = xPlayer ? xPlayer.name + ' (X)' : 'Esperando...';
-            document.getElementById('player-o-display').textContent = oPlayer ? oPlayer.name + ' (O)' : 'Esperando...';
+            const xP = players.find(p => p.mark === 'X');
+            const oP = players.find(p => p.mark === 'O');
+            document.getElementById('player-x-display').textContent = xP ? xP.name + ' (X)' : 'Esperando...';
+            document.getElementById('player-o-display').textContent = oP ? oP.name + ' (O)' : 'Esperando...';
         }
 
         function resetBoard() {
@@ -709,13 +741,13 @@
 
         cells.forEach(cell => {
             cell.addEventListener('click', () => {
-                const index = cell.dataset.index;
                 if (currentTurn !== myMark) return;
                 if (cell.textContent !== '') return;
-                socket.emit('make-move', { index });
+                socket.emit('make-move', { index: cell.dataset.index });
             });
         });
 
+        // ========== DICE EVENTS ==========
         socket.on('game-start', (data) => {
             startGameScreen({ players: data.players, scores: data.scores });
             currentTurn = data.currentTurn;
@@ -724,87 +756,73 @@
 
         socket.on('dice-phase', (data) => {
             showScreen('dice');
-            const xPlayer = data.players.find(p => p.mark === 'X');
-            const oPlayer = data.players.find(p => p.mark === 'O');
-            document.getElementById('dice-x-name').textContent = xPlayer ? xPlayer.name : 'X';
-            document.getElementById('dice-o-name').textContent = oPlayer ? oPlayer.name : 'O';
-            document.getElementById('dice-x').textContent = '?';
-            document.getElementById('dice-x').classList.add('hidden');
-            document.getElementById('dice-o').textContent = '?';
-            document.getElementById('dice-o').classList.add('hidden');
+            const xP = data.players.find(p => p.mark === 'X');
+            const oP = data.players.find(p => p.mark === 'O');
+            document.getElementById('dice-x-name').textContent = xP ? xP.name : 'X';
+            document.getElementById('dice-o-name').textContent = oP ? oP.name : 'O';
+            setDiceFace(diceX, 1);
+            setDiceFace(diceO, 1);
             document.getElementById('dice-x-value').textContent = '';
             document.getElementById('dice-o-value').textContent = '';
             document.getElementById('dice-result-text').textContent = '';
             document.getElementById('dice-result-text').className = 'dice-result-text';
-            document.getElementById('dice-status').textContent = 'Tira tu dado!';
+            document.getElementById('dice-status').textContent = 'Pulsa para tirar';
             document.getElementById('btn-roll').style.display = '';
             diceRolled = false;
         });
-
-        let diceRolled = false;
 
         document.getElementById('btn-roll').addEventListener('click', () => {
             if (diceRolled) return;
             diceRolled = true;
             document.getElementById('btn-roll').style.display = 'none';
             document.getElementById('dice-status').textContent = 'Tirando...';
-            document.getElementById('dice-x').classList.remove('hidden');
-            document.getElementById('dice-o').classList.remove('hidden');
-            document.getElementById('dice-x').classList.add('rolling');
-            document.getElementById('dice-o').classList.add('rolling');
 
-            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
-            let interval = setInterval(() => {
-                document.getElementById('dice-x').textContent = dotFaces[Math.floor(Math.random() * 6) + 1];
-                document.getElementById('dice-o').textContent = dotFaces[Math.floor(Math.random() * 6) + 1];
-            }, 80);
+            animateDiceRoll(diceX, shadowX, null);
+            animateDiceRoll(diceO, shadowO, null);
 
             setTimeout(() => {
-                clearInterval(interval);
-                document.getElementById('dice-x').classList.remove('rolling');
-                document.getElementById('dice-o').classList.remove('rolling');
                 socket.emit('roll-dice');
-            }, 1500);
+            }, 2200);
         });
 
         socket.on('dice-rolled', (data) => {
-            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
             const isX = data.playerName === document.getElementById('dice-x-name').textContent;
-            if (isX) {
-                document.getElementById('dice-x').textContent = dotFaces[data.value];
-                document.getElementById('dice-x-value').textContent = data.value;
-            } else {
-                document.getElementById('dice-o').textContent = dotFaces[data.value];
-                document.getElementById('dice-o-value').textContent = data.value;
-            }
+            const diceEl = isX ? diceX : diceO;
+            const valEl = isX ? document.getElementById('dice-x-value') : document.getElementById('dice-o-value');
+            setDiceFace(diceEl, data.value);
+            valEl.textContent = data.value;
             document.getElementById('dice-status').textContent = `${data.playerName} ha sacado ${data.value}`;
         });
 
         socket.on('dice-tie', (data) => {
-            document.getElementById('dice-result-text').textContent = `Empate a ${data.value}! Volviendo a tirar...`;
-            document.getElementById('dice-result-text').className = 'dice-result-text tie-text';
+            const res = document.getElementById('dice-result-text');
+            res.textContent = `Empate a ${data.value}! Volviendo a tirar...`;
+            res.className = 'dice-result-text tie-text visible';
         });
 
         socket.on('dice-result', (data) => {
-            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
             data.rolls.forEach(r => {
                 const isX = r.mark === 'X';
-                document.getElementById(isX ? 'dice-x' : 'dice-o').textContent = dotFaces[r.value];
+                setDiceFace(isX ? diceX : diceO, r.value);
                 document.getElementById(isX ? 'dice-x-value' : 'dice-o-value').textContent = r.value;
             });
 
             const winnerRoll = data.rolls.find(r => r.mark === data.firstPlayer.mark);
-            document.getElementById('dice-result-text').textContent = `${winnerRoll.name} (${winnerRoll.mark}) empieza!`;
-            document.getElementById('dice-result-text').className = `dice-result-text winner-${data.firstPlayer.mark.toLowerCase()}`;
+            const res = document.getElementById('dice-result-text');
+            res.textContent = `${winnerRoll.name} (${winnerRoll.mark}) empieza!`;
+            res.className = `dice-result-text winner-${data.firstPlayer.mark.toLowerCase()} visible`;
             document.getElementById('dice-status').textContent = '';
             document.getElementById('btn-roll').style.display = 'none';
+
+            launchConfetti(data.firstPlayer.mark.toLowerCase());
 
             setTimeout(() => {
                 currentTurn = data.firstPlayer.mark;
                 socket.emit('start-game-after-dice');
-            }, 2000);
+            }, 2800);
         });
 
+        // ========== GAME EVENTS ==========
         socket.on('board-update', (data) => {
             currentTurn = data.currentTurn;
             cells[data.lastMove.index].textContent = data.lastMove.mark;
@@ -821,23 +839,14 @@
         });
 
         socket.on('game-over', (data) => {
-            if (data.combo) {
-                data.combo.forEach(i => cells[i].classList.add('win'));
-            }
+            if (data.combo) data.combo.forEach(i => cells[i].classList.add('win'));
             updateScores(data.scores);
-
             setTimeout(() => {
-                const xPlayer = data.players.find(p => p.mark === 'X');
-                const oPlayer = data.players.find(p => p.mark === 'O');
-                const xName = xPlayer ? xPlayer.name : 'X';
-                const oName = oPlayer ? oPlayer.name : 'O';
-
                 if (data.winner) {
-                    const winnerPlayer = data.players.find(p => p.mark === data.winner);
-                    const winnerName = winnerPlayer ? winnerPlayer.name : data.winner;
-                    document.getElementById('modal-title').textContent = '¡Victoria!';
+                    const wp = data.players.find(p => p.mark === data.winner);
+                    document.getElementById('modal-title').textContent = '!Victoria!';
                     document.getElementById('modal-text').textContent =
-                        data.winner === myMark ? 'Has ganado!' : `${winnerName} ha ganado`;
+                        data.winner === myMark ? 'Has ganado!' : `${wp.name} ha ganado`;
                 } else {
                     document.getElementById('modal-title').textContent = 'Empate';
                     document.getElementById('modal-text').textContent = 'Nadie ha ganado esta ronda';
@@ -859,22 +868,14 @@
             document.getElementById('player-o-display').classList.toggle('active-turn', currentTurn === 'O');
         }
 
-        document.getElementById('btn-play-again').addEventListener('click', () => {
-            socket.emit('play-again');
-        });
-
+        document.getElementById('btn-play-again').addEventListener('click', () => socket.emit('play-again'));
         document.getElementById('btn-go-lobby').addEventListener('click', () => {
             document.getElementById('overlay-result').classList.remove('active');
-            socket.disconnect();
-            socket.connect();
-            showScreen('lobby');
+            socket.disconnect(); socket.connect(); showScreen('lobby');
         });
-
         document.getElementById('btn-back-lobby').addEventListener('click', () => {
             document.getElementById('overlay-disconnect').classList.remove('active');
-            socket.disconnect();
-            socket.connect();
-            showScreen('lobby');
+            socket.disconnect(); socket.connect(); showScreen('lobby');
         });
 
         nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btn-create').click(); });
