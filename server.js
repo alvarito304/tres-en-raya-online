@@ -48,6 +48,15 @@ function getPublicRooms() {
     }));
 }
 
+function startDicePhase(code) {
+  const room = rooms[code];
+  if (!room) return;
+  room.diceRolls = {};
+  io.to(code).emit('dice-phase', {
+    players: room.players.map(p => ({ id: p.id, name: p.name, mark: p.mark }))
+  });
+}
+
 io.on('connection', (socket) => {
   console.log(`Jugador conectado: ${socket.id}`);
 
@@ -83,15 +92,69 @@ io.on('connection', (socket) => {
 
     callback({ code, mark: 'O', room });
     io.emit('rooms-update', getPublicRooms());
+    startDicePhase(code);
+  });
+
+  socket.on('get-rooms', (callback) => {
+    callback(getPublicRooms());
+  });
+
+  socket.on('roll-dice', (callback) => {
+    const code = socket.roomCode;
+    const room = rooms[code];
+    if (!room || !room.diceRolls) return;
+
+    const roll = Math.floor(Math.random() * 6) + 1;
+    room.diceRolls[socket.id] = roll;
+
+    const player = room.players.find(p => p.id === socket.id);
+    if (player) {
+      io.to(code).emit('dice-rolled', {
+        playerId: socket.id,
+        playerName: player.name,
+        value: roll
+      });
+    }
+
+    if (Object.keys(room.diceRolls).length === 2) {
+      const entries = Object.entries(room.diceRolls);
+      const [id1, val1] = entries[0];
+      const [id2, val2] = entries[1];
+
+      setTimeout(() => {
+        if (val1 === val2) {
+          room.diceRolls = {};
+          io.to(code).emit('dice-tie', { value: val1 });
+          setTimeout(() => startDicePhase(code), 2000);
+          return;
+        }
+
+        const winnerId = val1 > val2 ? id1 : id2;
+        const firstPlayer = room.players.find(p => p.id === winnerId);
+        room.currentTurn = firstPlayer.mark;
+        room.board = Array(9).fill('');
+
+        io.to(code).emit('dice-result', {
+          rolls: entries.map(([id, val]) => {
+            const p = room.players.find(pl => pl.id === id);
+            return { id, name: p.name, mark: p.mark, value: val };
+          }),
+          firstPlayer: { id: firstPlayer.id, name: firstPlayer.name, mark: firstPlayer.mark }
+        });
+      }, 1500);
+    }
+  });
+
+  socket.on('start-game-after-dice', () => {
+    const code = socket.roomCode;
+    const room = rooms[code];
+    if (!room) return;
+    room.diceRolls = {};
     io.to(code).emit('game-start', {
       players: room.players,
       currentTurn: room.currentTurn,
       scores: room.scores
     });
-  });
-
-  socket.on('get-rooms', (callback) => {
-    callback(getPublicRooms());
   });
 
   socket.on('make-move', ({ index }) => {
@@ -146,11 +209,7 @@ io.on('connection', (socket) => {
     if (!room) return;
     room.board = Array(9).fill('');
     room.currentTurn = 'X';
-    io.to(code).emit('new-round', {
-      board: room.board,
-      currentTurn: room.currentTurn,
-      scores: room.scores
-    });
+    startDicePhase(code);
   });
 
   socket.on('disconnect', () => {

@@ -315,6 +315,96 @@
             letter-spacing: 1px;
         }
 
+        .dice-screen { gap: 20px; }
+
+        .dice-title {
+            font-size: 1.3rem;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .dice-container {
+            display: flex;
+            gap: 60px;
+            align-items: flex-end;
+        }
+
+        .dice-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dice-player-name {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .dice-player.x-dice .dice-player-name { color: #f857a6; }
+        .dice-player.o-dice .dice-player-name { color: #42e695; }
+
+        .dice {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1e1e2f;
+            transition: transform 0.1s;
+        }
+
+        .dice.rolling {
+            animation: diceShake 0.1s infinite alternate;
+        }
+
+        @keyframes diceShake {
+            from { transform: rotate(-8deg) scale(1.05); }
+            to { transform: rotate(8deg) scale(0.95); }
+        }
+
+        .dice.hidden {
+            background: rgba(255,255,255,0.1);
+            color: transparent;
+        }
+
+        .dice-value {
+            font-size: 1.4rem;
+            min-height: 30px;
+        }
+
+        .dice-player.x-dice .dice-value { color: #f857a6; }
+        .dice-player.o-dice .dice-value { color: #42e695; }
+
+        .dice-status {
+            font-size: 1.1rem;
+            color: #ccc;
+            min-height: 30px;
+        }
+
+        .dice-vs {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        .dice-result-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 5px;
+            min-height: 30px;
+        }
+
+        .dice-result-text.winner-x { color: #f857a6; }
+        .dice-result-text.winner-o { color: #42e695; }
+        .dice-result-text.tie-text { color: #aaa; }
+
         .overlay {
             display: none;
             position: fixed;
@@ -407,6 +497,27 @@
         <div class="back-link" id="btn-leave-waiting">Volver al lobby</div>
     </div>
 
+    <!-- PANTALLA DADOS -->
+    <div class="screen" id="screen-dice">
+        <div class="dice-title">Quien empieza?</div>
+        <div class="dice-container">
+            <div class="dice-player x-dice">
+                <div class="dice-player-name" id="dice-x-name">X</div>
+                <div class="dice hidden" id="dice-x">?</div>
+                <div class="dice-value" id="dice-x-value"></div>
+            </div>
+            <div class="dice-vs">VS</div>
+            <div class="dice-player o-dice">
+                <div class="dice-player-name" id="dice-o-name">O</div>
+                <div class="dice hidden" id="dice-o">?</div>
+                <div class="dice-value" id="dice-o-value"></div>
+            </div>
+        </div>
+        <div class="dice-status" id="dice-status">Preparado...</div>
+        <div class="dice-result-text" id="dice-result-text"></div>
+        <button class="btn" id="btn-roll" style="width:200px;">Tirar dado</button>
+    </div>
+
     <!-- PANTALLA JUEGO -->
     <div class="screen" id="screen-game">
         <div class="players-bar">
@@ -459,6 +570,7 @@
         const screens = {
             lobby: document.getElementById('screen-lobby'),
             waiting: document.getElementById('screen-waiting'),
+            dice: document.getElementById('screen-dice'),
             game: document.getElementById('screen-game')
         };
 
@@ -548,7 +660,8 @@
             socket.emit('join-room', code, myName, (res) => {
                 if (res.error) { errorMsg.textContent = res.error; return; }
                 myMark = res.mark;
-                startGameScreen(res.room);
+                updateScores(res.room.scores);
+                updatePlayers(res.room.players);
             });
         });
 
@@ -607,6 +720,89 @@
             startGameScreen({ players: data.players, scores: data.scores });
             currentTurn = data.currentTurn;
             updateTurn();
+        });
+
+        socket.on('dice-phase', (data) => {
+            showScreen('dice');
+            const xPlayer = data.players.find(p => p.mark === 'X');
+            const oPlayer = data.players.find(p => p.mark === 'O');
+            document.getElementById('dice-x-name').textContent = xPlayer ? xPlayer.name : 'X';
+            document.getElementById('dice-o-name').textContent = oPlayer ? oPlayer.name : 'O';
+            document.getElementById('dice-x').textContent = '?';
+            document.getElementById('dice-x').classList.add('hidden');
+            document.getElementById('dice-o').textContent = '?';
+            document.getElementById('dice-o').classList.add('hidden');
+            document.getElementById('dice-x-value').textContent = '';
+            document.getElementById('dice-o-value').textContent = '';
+            document.getElementById('dice-result-text').textContent = '';
+            document.getElementById('dice-result-text').className = 'dice-result-text';
+            document.getElementById('dice-status').textContent = 'Tira tu dado!';
+            document.getElementById('btn-roll').style.display = '';
+            diceRolled = false;
+        });
+
+        let diceRolled = false;
+
+        document.getElementById('btn-roll').addEventListener('click', () => {
+            if (diceRolled) return;
+            diceRolled = true;
+            document.getElementById('btn-roll').style.display = 'none';
+            document.getElementById('dice-status').textContent = 'Tirando...';
+            document.getElementById('dice-x').classList.remove('hidden');
+            document.getElementById('dice-o').classList.remove('hidden');
+            document.getElementById('dice-x').classList.add('rolling');
+            document.getElementById('dice-o').classList.add('rolling');
+
+            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
+            let interval = setInterval(() => {
+                document.getElementById('dice-x').textContent = dotFaces[Math.floor(Math.random() * 6) + 1];
+                document.getElementById('dice-o').textContent = dotFaces[Math.floor(Math.random() * 6) + 1];
+            }, 80);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                document.getElementById('dice-x').classList.remove('rolling');
+                document.getElementById('dice-o').classList.remove('rolling');
+                socket.emit('roll-dice');
+            }, 1500);
+        });
+
+        socket.on('dice-rolled', (data) => {
+            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
+            const isX = data.playerName === document.getElementById('dice-x-name').textContent;
+            if (isX) {
+                document.getElementById('dice-x').textContent = dotFaces[data.value];
+                document.getElementById('dice-x-value').textContent = data.value;
+            } else {
+                document.getElementById('dice-o').textContent = dotFaces[data.value];
+                document.getElementById('dice-o-value').textContent = data.value;
+            }
+            document.getElementById('dice-status').textContent = `${data.playerName} ha sacado ${data.value}`;
+        });
+
+        socket.on('dice-tie', (data) => {
+            document.getElementById('dice-result-text').textContent = `Empate a ${data.value}! Volviendo a tirar...`;
+            document.getElementById('dice-result-text').className = 'dice-result-text tie-text';
+        });
+
+        socket.on('dice-result', (data) => {
+            const dotFaces = ['', '\u2680', '\u2681', '\u2682', '\u2683', '\u2684', '\u2685'];
+            data.rolls.forEach(r => {
+                const isX = r.mark === 'X';
+                document.getElementById(isX ? 'dice-x' : 'dice-o').textContent = dotFaces[r.value];
+                document.getElementById(isX ? 'dice-x-value' : 'dice-o-value').textContent = r.value;
+            });
+
+            const winnerRoll = data.rolls.find(r => r.mark === data.firstPlayer.mark);
+            document.getElementById('dice-result-text').textContent = `${winnerRoll.name} (${winnerRoll.mark}) empieza!`;
+            document.getElementById('dice-result-text').className = `dice-result-text winner-${data.firstPlayer.mark.toLowerCase()}`;
+            document.getElementById('dice-status').textContent = '';
+            document.getElementById('btn-roll').style.display = 'none';
+
+            setTimeout(() => {
+                currentTurn = data.firstPlayer.mark;
+                socket.emit('start-game-after-dice');
+            }, 2000);
         });
 
         socket.on('board-update', (data) => {
