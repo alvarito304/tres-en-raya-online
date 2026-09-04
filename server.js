@@ -38,10 +38,20 @@ function checkDraw(board) {
   return board.every(cell => cell !== '');
 }
 
+function getPublicRooms() {
+  return Object.entries(rooms)
+    .filter(([, room]) => room.isPublic && room.players.length < 2 && room.players.length > 0)
+    .map(([code, room]) => ({
+      code,
+      host: room.players[0] ? room.players[0].name : 'Desconocido',
+      players: room.players.length
+    }));
+}
+
 io.on('connection', (socket) => {
   console.log(`Jugador conectado: ${socket.id}`);
 
-  socket.on('create-room', (playerName, callback) => {
+  socket.on('create-room', (playerName, { isPublic = false } = {}, callback) => {
     let code;
     do { code = generateCode(); } while (rooms[code]);
 
@@ -49,12 +59,15 @@ io.on('connection', (socket) => {
       players: [{ id: socket.id, name: playerName, mark: 'X' }],
       board: Array(9).fill(''),
       currentTurn: 'X',
-      scores: { X: 0, O: 0, draws: 0 }
+      scores: { X: 0, O: 0, draws: 0 },
+      isPublic: !!isPublic,
+      createdAt: Date.now()
     };
 
     socket.join(code);
     socket.roomCode = code;
     callback({ code, mark: 'X', room: rooms[code] });
+    io.emit('rooms-update', getPublicRooms());
   });
 
   socket.on('join-room', (code, playerName, callback) => {
@@ -69,11 +82,16 @@ io.on('connection', (socket) => {
     socket.roomCode = code;
 
     callback({ code, mark: 'O', room });
+    io.emit('rooms-update', getPublicRooms());
     io.to(code).emit('game-start', {
       players: room.players,
       currentTurn: room.currentTurn,
       scores: room.scores
     });
+  });
+
+  socket.on('get-rooms', (callback) => {
+    callback(getPublicRooms());
   });
 
   socket.on('make-move', ({ index }) => {
@@ -151,6 +169,7 @@ io.on('connection', (socket) => {
         players: room.players
       });
     }
+    io.emit('rooms-update', getPublicRooms());
   });
 });
 

@@ -193,6 +193,128 @@
             min-height: 25px;
         }
 
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 5px 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.on {
+            background: #42e695;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.on::after {
+            transform: translateX(20px);
+        }
+
+        .rooms-section {
+            margin-top: 25px;
+            width: 340px;
+            text-align: left;
+        }
+
+        .rooms-title {
+            font-size: 1rem;
+            color: #888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .rooms-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .rooms-list::-webkit-scrollbar { width: 4px; }
+        .rooms-list::-webkit-scrollbar-track { background: transparent; }
+        .rooms-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+        .room-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            transition: border 0.2s, background 0.2s;
+        }
+
+        .room-item:hover {
+            border-color: #42e695;
+            background: rgba(66,230,149,0.05);
+        }
+
+        .room-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .room-host {
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .room-code-label {
+            font-size: 0.8rem;
+            color: #666;
+            letter-spacing: 1px;
+        }
+
+        .room-item .btn {
+            width: auto;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .no-rooms {
+            text-align: center;
+            color: #555;
+            font-size: 0.9rem;
+            padding: 20px 0;
+        }
+
+        .waiting-code-label {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .overlay {
             display: none;
             position: fixed;
@@ -256,19 +378,32 @@
     <div class="screen active" id="screen-lobby">
         <div class="lobby">
             <input type="text" id="player-name" placeholder="Tu nombre" maxlength="15">
+            <div class="toggle-container">
+                <span>Publica</span>
+                <div class="toggle on" id="toggle-public"></div>
+                <span>Privada</span>
+            </div>
             <button class="btn" id="btn-create">Crear Sala</button>
             <div class="divider">o</div>
             <input type="text" id="room-code-input" placeholder="Codigo de sala" maxlength="5" style="text-transform:uppercase">
             <button class="btn btn-secondary" id="btn-join">Unirse</button>
             <div class="error-msg" id="error-msg"></div>
+            <div class="rooms-section" id="rooms-section">
+                <div class="rooms-title">Salas publicas</div>
+                <div class="rooms-list" id="rooms-list">
+                    <div class="no-rooms">No hay salas publicas</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- PANTALLA ESPERANDO -->
     <div class="screen" id="screen-waiting">
+        <div class="waiting-code-label">Codigo de sala</div>
         <div class="code-display" id="room-code-display"></div>
         <button class="btn btn-secondary copy-btn" id="btn-copy">Copiar codigo</button>
         <div class="waiting">Esperando a tu rival<span class="dots"></span></div>
+        <div id="room-visibility-tag" style="font-size:0.8rem;color:#888;margin-bottom:15px;"></div>
         <div class="back-link" id="btn-leave-waiting">Volver al lobby</div>
     </div>
 
@@ -333,10 +468,53 @@
         const roomCodeDisplay = document.getElementById('room-code-display');
         const status = document.getElementById('status');
         const cells = document.querySelectorAll('.cell');
+        const togglePublic = document.getElementById('toggle-public');
+        const roomsList = document.getElementById('rooms-list');
+        const roomVisibilityTag = document.getElementById('room-visibility-tag');
 
         let myMark = '';
         let currentTurn = '';
         let myName = '';
+        let isPublicRoom = true;
+
+        togglePublic.addEventListener('click', () => {
+            isPublicRoom = !isPublicRoom;
+            togglePublic.classList.toggle('on', isPublicRoom);
+        });
+
+        function renderRooms(rooms) {
+            if (rooms.length === 0) {
+                roomsList.innerHTML = '<div class="no-rooms">No hay salas publicas</div>';
+                return;
+            }
+            roomsList.innerHTML = rooms.map(r => `
+                <div class="room-item">
+                    <div class="room-info">
+                        <div class="room-host">${escapeHtml(r.host)}</div>
+                        <div class="room-code-label">${r.code}</div>
+                    </div>
+                    <button class="btn btn-secondary btn-quick-join" data-code="${r.code}">Unirse</button>
+                </div>
+            `).join('');
+
+            roomsList.querySelectorAll('.btn-quick-join').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const name = getPlayerName();
+                    if (!name) return;
+                    codeInput.value = btn.dataset.code;
+                    document.getElementById('btn-join').click();
+                });
+            });
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        socket.emit('get-rooms', renderRooms);
+        socket.on('rooms-update', renderRooms);
 
         function showScreen(name) {
             Object.values(screens).forEach(s => s.classList.remove('active'));
@@ -353,9 +531,10 @@
             myName = getPlayerName();
             if (!myName) return;
             errorMsg.textContent = '';
-            socket.emit('create-room', myName, (res) => {
+            socket.emit('create-room', myName, { isPublic: isPublicRoom }, (res) => {
                 myMark = res.mark;
                 roomCodeDisplay.textContent = res.code;
+                roomVisibilityTag.textContent = isPublicRoom ? 'Sala publica - aparece en la lista' : 'Sala privada - solo por codigo';
                 showScreen('waiting');
             });
         });
