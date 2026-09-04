@@ -760,38 +760,53 @@
             const oP = data.players.find(p => p.mark === 'O');
             document.getElementById('dice-x-name').textContent = xP ? xP.name : 'X';
             document.getElementById('dice-o-name').textContent = oP ? oP.name : 'O';
+            opponentName = myMark === 'X' ? (oP ? oP.name : 'O') : (xP ? xP.name : 'X');
             setDiceFace(diceX, 1);
             setDiceFace(diceO, 1);
             document.getElementById('dice-x-value').textContent = '';
             document.getElementById('dice-o-value').textContent = '';
             document.getElementById('dice-result-text').textContent = '';
             document.getElementById('dice-result-text').className = 'dice-result-text';
-            document.getElementById('dice-status').textContent = 'Pulsa para tirar';
+            document.getElementById('dice-status').textContent = 'Tira tu dado';
             document.getElementById('btn-roll').style.display = '';
             diceRolled = false;
         });
+
+        let diceRolled = false;
+        let opponentName = '';
 
         document.getElementById('btn-roll').addEventListener('click', () => {
             if (diceRolled) return;
             diceRolled = true;
             document.getElementById('btn-roll').style.display = 'none';
-            document.getElementById('dice-status').textContent = 'Tirando...';
+            document.getElementById('dice-status').textContent = 'Tirando tu dado...';
 
-            animateDiceRoll(diceX, shadowX, null);
-            animateDiceRoll(diceO, shadowO, null);
+            const myDice = myMark === 'X' ? diceX : diceO;
+            const myShadow = myMark === 'X' ? shadowX : shadowO;
 
-            setTimeout(() => {
+            animateDiceRoll(myDice, myShadow, () => {
                 socket.emit('roll-dice');
-            }, 2200);
+            });
         });
 
         socket.on('dice-rolled', (data) => {
-            const isX = data.playerName === document.getElementById('dice-x-name').textContent;
+            const isX = data.playerMark === 'X';
             const diceEl = isX ? diceX : diceO;
+            const shadowEl = isX ? shadowX : shadowO;
             const valEl = isX ? document.getElementById('dice-x-value') : document.getElementById('dice-o-value');
-            setDiceFace(diceEl, data.value);
-            valEl.textContent = data.value;
-            document.getElementById('dice-status').textContent = `${data.playerName} ha sacado ${data.value}`;
+
+            if (data.playerName === myName) {
+                setDiceFace(diceEl, data.value);
+                valEl.textContent = data.value;
+                document.getElementById('dice-status').textContent = `Esperando a ${opponentName}...`;
+            } else {
+                document.getElementById('dice-status').textContent = `${data.playerName} esta tirando...`;
+                animateDiceRoll(diceEl, shadowEl, () => {
+                    setDiceFace(diceEl, data.value);
+                    valEl.textContent = data.value;
+                    document.getElementById('dice-status').textContent = `${data.playerName} ha sacado ${data.value}`;
+                });
+            }
         });
 
         socket.on('dice-tie', (data) => {

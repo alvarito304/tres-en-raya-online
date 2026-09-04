@@ -112,6 +112,7 @@ io.on('connection', (socket) => {
       io.to(code).emit('dice-rolled', {
         playerId: socket.id,
         playerName: player.name,
+        playerMark: player.mark,
         value: roll
       });
     }
